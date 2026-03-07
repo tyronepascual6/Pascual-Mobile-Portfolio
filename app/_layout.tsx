@@ -1,24 +1,65 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+// ===== ICON LIBRARY =====
+// Ionicons provides ready-to-use icons for the tab bar
+import { Ionicons } from '@expo/vector-icons';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+// ===== EXPO ROUTER TABS =====
+// Tabs creates a bottom tab navigation layout
+import { Tabs } from "expo-router";
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import React from "react";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
+// ===== TAB LAYOUT COMPONENT =====
+// This file defines the global bottom navigation tabs
+export default function TabLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    // Tabs wraps all tab screens
+    <Tabs
+      screenOptions={{
+        headerShown: false, // Hides the top header for all tabs
+      }}
+    >
+
+      {/* ===== HOME TAB ===== */}
+      <Tabs.Screen
+        name="index" // Must match index.tsx
+        options={{
+          title: 'Home', // Label shown under the tab icon
+          tabBarIcon: ({ color, size }) => (
+            // Home icon that automatically adapts
+            // to active/inactive tab color and size
+            <Ionicons name="home" size={size} color={color} />
+          ),
+        }}
+      />
+
+      {/* ===== CERTIFICATES TAB ===== */}
+      <Tabs.Screen
+        name="certificates" // Must match certificates.tsx
+        options={{
+          title: 'Certificates',
+          tabBarIcon: ({ color, size }) => (
+            // Document icon to represent certificates
+            <Ionicons name="document-text" size={size} color={color} />
+          ),
+        }}
+      />
+
+      {/* ===== PROJECTS TAB ===== */}
+      <Tabs.Screen
+        name="projects" // Must match project.tsx
+        options={{
+          title: 'Projects',
+          tabBarIcon: ({ color, size }) => (
+            // Briefcase icon to represent work/projects
+            <Ionicons name="briefcase" size={size} color={color} />
+          ),
+        }}
+      />
+
+        {/* Hide project detail screen */}
+  <Tabs.Screen name="project/[id]" options={{ href: null }} />
+  <Tabs.Screen name="projectscreener/[id]" options={{ href: null }} />
+
+    </Tabs>
   );
 }
