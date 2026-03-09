@@ -59,6 +59,8 @@ export default function TabLayout() {
         {/* Hide project detail screen */}
   <Tabs.Screen name="project/[id]" options={{ href: null }} />
   <Tabs.Screen name="projectscreener/[id]" options={{ href: null }} />
+  <Tabs.Screen name="login" options={{ href: null }} />
+  <Tabs.Screen name="signup" options={{ href: null }} />
 
     </Tabs>
   );

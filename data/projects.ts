@@ -8,6 +8,11 @@ export const projects = [
       year: '2025',
       type: 'Mobile App',
       tech: ['React Native', 'Expo Router', 'JavaScript', 'REST API'],
+      github: 'https://github.com/tyronepascual6/Movie-App-Pascual',
+      video: 'movie-demo',
+      gallery: [
+        'movie-1'
+      ],
       description:
         'My first React Native based app utilizing API for movies data and images. Unfortunately, It cannot play a movie and just a UI but it was decent for a first project',
       features: [
@@ -30,6 +35,16 @@ export const projects = [
         year: '2026',
         type: 'Mobile App',
         tech: ['React Native', 'Expo Router', 'JavaScript'],
+        github: 'https://github.com/tyronepascual6/Pascual-Mobile-Portfolio',
+        video: 'portfolio-demo',
+        gallery: [
+          'portfolio-1',
+          'portfolio-2',
+          'portfolio-3',
+          'portfolio-4',
+          'portfolio-5',
+          'portfolio-6'
+        ],
         description:
           'A personal portfolio app designed to showcase my personal information and projects with clean UI and smooth navigation.',
         features: [
@@ -54,6 +69,14 @@ export const projects = [
           'Firestore',
           'Natural Language Processing (NLP)',
           'REST API'
+        ],
+        github: 'https://github.com/tyronepascual6/vitalis-chatbot',
+        video: 'vitalis-demo',
+        gallery: [
+          'vitalis-1',
+          'vitalis-2',
+          'vitalis-3',
+          'vitalis-4'
         ],
         description:
           'Vitalis is an AI-driven virtual health assistant designed to provide preliminary symptom analysis and health guidance for common illnesses. It uses Natural Language Processing (NLP) to understand user-input symptoms and provides evidence-based health suggestions while encouraging professional medical consultation when necessary. The system is created for our capstone project.',
