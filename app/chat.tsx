@@ -168,7 +168,7 @@ export default function ChatScreen() {
               msg.role === 'user' ? styles.bubbleRight : styles.bubbleLeft,
             ]}
           >
-            {/* Bot avatar dot */}
+            {/* Bot avatar dot green */}
             {msg.role === 'bot' && <View style={styles.botDot} />}
 
             <View
