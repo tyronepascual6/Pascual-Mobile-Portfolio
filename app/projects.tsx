@@ -11,6 +11,7 @@ import { projects } from '../data/projects';
 const projectImages: Record<string, any> = {
   'movie-placeholder': require('../assets/images/movie-placeholder.jpg'),
   'portfolio-placeholder': require('../assets/images/portfolio-placeholder.jpg'),
+  'vitalis-placeholder': require('../assets/images/vitalis-placeholder.jpg'),
 };
 
 // ===== PROJECTS SCREEN =====

@@ -3,10 +3,11 @@ import { router, useFocusEffect } from 'expo-router';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Animated, Image, ImageBackground, Platform, ScrollView, StyleSheet, Text,
+  Animated, Image, ImageBackground, Platform, Modal, Pressable, ScrollView, StyleSheet, Text,
   TouchableOpacity, View
 } from 'react-native';
 import { auth } from '../firebase';
+import { Ionicons } from '@expo/vector-icons';
 
 
 // ===== CONSTANTS =====
@@ -29,6 +30,9 @@ export default function HomeScreen() {
 
   // Keeps track of whether someone is logged in or not
   const [user, setUser] = useState(null);
+
+  // ===== ADDED: controls whether the logout confirmation modal is visible =====
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // ===== LISTEN TO LOGIN STATE =====
   useEffect(() => {
@@ -116,6 +120,9 @@ export default function HomeScreen() {
 
   // ===== UI =====
   return (
+    
+    <View style={styles.outerContainer}>
+
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
       showsVerticalScrollIndicator={false}
@@ -124,13 +131,12 @@ export default function HomeScreen() {
       {/* ===== HEADER ===== */}
       <View style={styles.header}>
 
-        {/* Login button when logged out, Logout button when logged in */}
-        <TouchableOpacity
-          onPress={() => user ? signOut(auth) : router.push('/login')}
-          style={styles.loginBtn}
-        >
-          <Text style={styles.loginBtnText}>{user ? 'Logout' : 'Login'}</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => user ? setShowLogoutModal(true) : router.push('/login')}
+        style={styles.loginBtn}
+      >
+        <Text style={styles.loginBtnText}>{user ? 'Logout' : 'Login'}</Text>
+      </TouchableOpacity>
 
         <View style={styles.row}>
 
@@ -257,7 +263,37 @@ export default function HomeScreen() {
         </ImageBackground>
       </View>
 
+      {/* ===== ADDED: logout confirmation modal ===== */}
+      <Modal visible={showLogoutModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Logout</Text>
+            <Text style={styles.modalMessage}>Are you sure you want to logout?</Text>
+            <View style={styles.modalButtons}>
+              {/* Cancel — just closes the modal */}
+              <Pressable style={styles.modalCancel} onPress={() => setShowLogoutModal(false)}>
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </Pressable>
+              {/* Confirm — signs out and closes the modal */}
+              <Pressable style={styles.modalConfirm} onPress={() => { signOut(auth); setShowLogoutModal(false); }}>
+                <Text style={styles.modalConfirmText}>Logout</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </ScrollView>
+    
+    {/* ===== FLOATING CHAT BUTTON ===== */}
+<Pressable
+  style={styles.floatingChatBtn}
+  onPress={() => router.push('/chat')}
+>
+  <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
+</Pressable>
+
+  </View>
   );
 }
 
@@ -422,5 +458,79 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 13,
     fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 8,
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalCancel: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#000',
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    color: '#000',
+    fontWeight: '600',
+  },
+  modalConfirm: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 999,
+    backgroundColor: '#000',
+    alignItems: 'center',
+  },
+  modalConfirmText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  floatingChatBtn: {
+    position: 'absolute',
+    bottom: 32,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
   },
 });
