@@ -95,6 +95,7 @@ export default function ChatScreen() {
 
     try {
       // Call OpenRouter API
+      console.log('Key being used:', process.env.EXPO_PUBLIC_OPENROUTER_KEY);
       const response = await fetch(
         'https://openrouter.ai/api/v1/chat/completions',
         {
@@ -126,6 +127,7 @@ export default function ChatScreen() {
         
       setMessages((prev) => [...prev, { role: 'bot', text: reply }]);
     } catch (e) {
+      console.log('Fetch error:', e);
       setMessages((prev) => [
         ...prev,
         { role: 'bot', text: 'Something went wrong. Please try again.' },
