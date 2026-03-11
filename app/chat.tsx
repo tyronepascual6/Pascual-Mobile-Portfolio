@@ -94,18 +94,16 @@ export default function ChatScreen() {
     setLoading(true);
 
     try {
-      // Call OpenRouter API
-      console.log('Key being used:', process.env.EXPO_PUBLIC_OPENROUTER_KEY);
       const response = await fetch(
-        'https://openrouter.ai/api/v1/chat/completions',
+        'https://api.groq.com/openai/v1/chat/completions',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_OPENROUTER_KEY}`,
+            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_GROQ_KEY}`,
           },
           body: JSON.stringify({
-            model: 'stepfun/step-3.5-flash:free',
+            model: 'llama3-8b-8192',
             messages: [
               { role: 'system', content: PORTFOLIO_CONTEXT },
               ...newMessages.map((m) => ({
