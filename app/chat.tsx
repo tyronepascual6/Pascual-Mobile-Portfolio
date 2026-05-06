@@ -24,45 +24,39 @@ type Message = {
 // This is the info Gemini uses to answer questions about you.
 // Update this whenever your info changes.
 const PORTFOLIO_CONTEXT = `
-You are a portfolio assistant for Tyrone Pascual, an IT student and developer.
-Only answer questions related to Tyrone and his portfolio. If the question is unrelated, politely say you can only answer questions about Tyrone.
+You are Tyrone Pascual's friendly portfolio assistant. Your name is "Ty's Assistant."
+Keep all answers SHORT (2-4 sentences max) and conversational — no bullet lists unless the user specifically asks.
+Only answer questions about Tyrone. If asked something unrelated, say: "I only know about Tyrone and his work!"
 
-Here is Tyrone's information:
+TYRONE'S INFO:
+- Full Name: Tyrone Pascual
+- Role: IT Student & Developer
+- School: Universidad de Manila — BS Information Technology (2022–Present)
+- He's currently in his final years and led a capstone project published on Google Scholar.
 
-Name: Tyrone Pascual
-Role: IT Student / Developer
-School: Universidad de Manila — Bachelor of Science in Information Technology (2022 - Present)
+SKILLS: HTML, CSS, JavaScript, React Native, Responsive UI, Data Visualization, OOP, Cisco Basic Networking, Computer Troubleshooting, Microsoft Office, Google Workspace
 
-About:
-IT student from Universidad de Manila focused on web and mobile development, with hands-on experience in HTML, CSS, JavaScript, and React Native. Values clean design, usability, and continuous learning.
+PROJECTS:
+1. Movie App (2025) — React Native app using REST API. github.com/tyronepascual6/Movie-App-Pascual
+2. Personal Portfolio App (2026) — React Native with glassmorphism UI + Firebase. github.com/tyronepascual6/Pascual-Mobile-Portfolio
+3. Vitalis AI Health Assistant (2025) — Capstone. NLP chatbot for symptom analysis, Firebase + Firestore. github.com/tyronepascual6/vitalis-chatbot
 
-Skills:
-- Core: HTML, CSS, JavaScript, React Native, Responsive UI Design, Data Visualization, OOP
-- Tools: Microsoft Office, Google Workspace
-- Technical: Cisco Basic Networking, Computer Troubleshooting, Documentation
-
-Education:
-- BS Information Technology — Universidad de Manila (2022 - Present)
-- ICT TVL Senior High School — Universidad de Manila (2020 - 2022)
-- Junior High School — Pres. Corazon C. Aquino High School (2016 - 2020)
-
-Achievements:
-- Senior High School Graduate with High Honors (2022)
-- Junior High School Graduate with Honors (2020)
+ACHIEVEMENTS:
+- Senior High Graduate with High Honors (2022)
+- Junior High Graduate with Honors (2020)
 - Best in TLE ICT Section 1 (2020)
-- 3rd Place Collaborative Desktop Publishing Division Level (2019)
-- 4th Place Tarpaulin Making Contest Division Level (2019)
-- Piso WiFi Business Startup
-- Capstone Leader
-- Corresponding Author in Publication of Capstone Study on Google Scholar
+- 3rd Place Collaborative Desktop Publishing — Division Level (2019)
+- Published Capstone study as Corresponding Author on Google Scholar
+- Led a Piso WiFi business startup
 
-Projects:
-1. Movie Mobile App (2025) — React Native front-end app using REST API for movie data. GitHub: https://github.com/tyronepascual6/Movie-App-Pascual
-2. Personal Portfolio App (2026) — React Native portfolio app with glassmorphism UI and Firebase auth. GitHub: https://github.com/tyronepascual6/Pascual-Mobile-Portfolio
-3. Vitalis - AI Health Assistant (2025) — Capstone project. AI chatbot using NLP for symptom analysis, Firebase auth, Firestore. GitHub: https://github.com/tyronepascual6/vitalis-chatbot
+EDUCATION:
+- BS IT — Universidad de Manila (2022–Present)
+- ICT TVL Senior High — Universidad de Manila (2020–2022)
+- Junior High — Pres. Corazon C. Aquino High School (2016–2020)
 
-Languages: English, Filipino
-Interests: Gym, Study, Business, Web & Mobile Development, Video Games
+PERSONAL: Speaks English and Filipino. Interests include gym, studying, business, and video games.
+
+Tone: Friendly, brief, and confident. Speak like a helpful friend who knows Tyrone well.
 `;
 
 // ===== CHAT SCREEN =====
@@ -87,48 +81,61 @@ export default function ChatScreen() {
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || loading) return;
-
+  
     const newMessages: Message[] = [...messages, { role: 'user', text }];
     setMessages(newMessages);
     setInput('');
     setLoading(true);
-
+  
     try {
+      const history = newMessages.slice(1).map((m) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.text }],
+      }));
+  
       const response = await fetch(
-        'https://api.groq.com/openai/v1/chat/completions',
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.EXPO_PUBLIC_GEMINI_KEY_1}`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.EXPO_PUBLIC_GROQ_KEY}`,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
-            messages: [
-              { role: 'system', content: PORTFOLIO_CONTEXT },
-              ...newMessages.map((m) => ({
-                role: m.role === 'user' ? 'user' : 'assistant',
-                content: m.text,
-              })),
-            ],
+            system_instruction: {
+              parts: [{ text: PORTFOLIO_CONTEXT }],
+            },
+            contents: history,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 512,
+            },
           }),
         }
       );
-
-            const data = await response.json();
-        console.log('OpenRouter response:', JSON.stringify(data));
-        const reply = (data?.choices?.[0]?.message?.content ?? "Sorry, I couldn't get a response. Try again!")
-    .replace(/\*\*/g, '')
-    .replace(/\*/g, '')
-    .replace(/#{1,6} /g, '')
-  . replace(/`/g, '');
-        
+  
+      const data = await response.json();
+      console.log('GEMINI RESPONSE:', JSON.stringify(data, null, 2));
+  
+      // If Gemini returns an error, show it clearly
+      if (data?.error) {
+        console.log('API ERROR:', data.error.message);
+        setMessages((prev) => [...prev, { role: 'bot', text: `API Error: ${data.error.message}` }]);
+        return;
+      }
+  
+      const reply = (
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ??
+        "Sorry, I couldn't get a response. Try again!"
+      )
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .replace(/#{1,6} /g, '')
+        .replace(/`/g, '');
+  
       setMessages((prev) => [...prev, { role: 'bot', text: reply }]);
     } catch (e) {
-      console.log('Fetch error:', e);
+      console.log('FULL ERROR:', e);
       setMessages((prev) => [
         ...prev,
-        { role: 'bot', text: 'Something went wrong. Please try again.' },
+        { role: 'bot', text: `Error: ${e}` },
       ]);
     } finally {
       setLoading(false);
@@ -207,7 +214,7 @@ export default function ChatScreen() {
           placeholder="Ask about Tyrone..."
           placeholderTextColor="#9ca3af"
           value={input}
-          onChangeText={(text) => setInput(text.replace(/[^a-zA-Z0-9 ]/g, ''))}
+          onChangeText={setInput}
           onSubmitEditing={sendMessage}
           returnKeyType="send"
           multiline

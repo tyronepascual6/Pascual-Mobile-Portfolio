@@ -20,12 +20,14 @@ const projectImages: Record<string, any> = {
   'movie-placeholder': require('../../assets/images/movie-placeholder.jpg'),
   'portfolio-placeholder': require('../../assets/images/portfolio-placeholder.jpg'),
   'vitalis-placeholder': require('../../assets/images/vitalis-placeholder.jpg'),
+  'gym-placeholder': require('../../assets/images/gym-placeholder.png'),
 };
 
 const projectVideos: Record<string, any> = {
   'movie-demo': require('../../assets/videos/movie-demo.mp4'),
   'portfolio-demo': require('../../assets/videos/portfolio-demo.mp4'),
   'vitalis-demo': require('../../assets/videos/vitalis-demo.mp4'),
+  'gym-demo': require('../../assets/videos/gym-demo.mp4'),
 };
 
 // All gallery images across every project, keyed by a unique string
@@ -41,6 +43,11 @@ const galleryImages: Record<string, any> = {
   'vitalis-2': require('../../assets/images/gallery/vitalis-2.jpg'),
   'vitalis-3': require('../../assets/images/gallery/vitalis-3.jpg'),
   'vitalis-4': require('../../assets/images/gallery/vitalis-4.jpg'),
+  'gym-1': require('../../assets/images/gallery/gym-1.jpg'),
+  'gym-2': require('../../assets/images/gallery/gym-2.jpg'),
+  'gym-3': require('../../assets/images/gallery/gym-3.jpg'),
+  'gym-4': require('../../assets/images/gallery/gym-4.jpg'),
+  'gym-5': require('../../assets/images/gallery/gym-5.jpg'),
 };
 
 export default function ProjectDetails() {

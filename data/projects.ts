@@ -94,5 +94,42 @@ export const projects = [
           'Data privacy-focused design (no medical diagnosis, no prescription)',
         ],
       },
+      {
+        id: 'gymsystem',
+        title: 'Gym Management System',
+        shortDescription: 'A full-stack web-based gym management system for local fitness businesses',
+        image: 'gym-placeholder',
+        role: 'Full-Stack Developer',
+        year: '2026',
+        type: 'Web Application',
+        tech: ['Python', 'Flask', 'SQLAlchemy', 'PostgreSQL', 'Tailwind CSS', 'Jinja2', 'JavaScript'],
+        github: 'https://github.com/tyronepascual6/Rico-Gym',
+        video: 'gym-demo',
+        gallery: [
+          'gym-1',
+          'gym-2',
+          'gym-3',
+          'gym-4',
+          'gym-5'
+        ],
+        description:
+          'A full-stack web application built for local gyms that still rely on paper-based check-ins and manual cash counting. The system digitizes daily operations — logging every member and walk-in check-in, computing earnings automatically across daily, weekly, monthly, and annual periods, and giving gym owners a real-time dashboard they can monitor from any device. Deployed on Render with a PostgreSQL database hosted on Supabase, and designed to be reusable across multiple gym clients with minimal configuration changes.',
+        features: [
+          'Real-time earnings dashboard with daily, weekly, monthly, and annual breakdowns',
+          'Digital check-in system supporting both registered members and walk-in guests',
+          'Staff PIN protection to restrict check-in access to authorized personnel only',
+          'Secure admin login with session-based authentication',
+          'Member registration with auto-generated unique member IDs',
+          'Searchable member directory with initials-based avatars',
+          'Full check-in history with date range filtering and CSV export',
+          'Earnings soft-reset feature that preserves all historical data',
+          'Subscription-based suspension system for developer access control',
+          'Fully responsive design compatible with desktop, tablet, and mobile',
+          'Persistent fullscreen mode with cross-page memory via localStorage',
+          'Dynamic open and closed gym status based on operating hours',
+          'Cloud-deployed with PostgreSQL on Supabase and hosted on Render',
+          'Timezone-aware data recording using Philippine Standard Time (UTC+8)',
+        ],
+      },
   ];
   

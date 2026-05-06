@@ -1,13 +1,16 @@
 // ===== REACT & REACT NATIVE IMPORTS =====
+import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Animated, Image, ImageBackground, Platform, Modal, Pressable, ScrollView, StyleSheet, Text,
+  Animated, Image, ImageBackground,
+  Modal,
+  Platform,
+  Pressable, ScrollView, StyleSheet, Text,
   TouchableOpacity, View
 } from 'react-native';
 import { auth } from '../firebase';
-import { Ionicons } from '@expo/vector-icons';
 
 
 // ===== CONSTANTS =====
@@ -162,7 +165,7 @@ export default function HomeScreen() {
 
             {/* Small pill badge below the name */}
             <View style={styles.roleWrapper}>
-              <Text style={styles.role}>IT Student / Developer</Text>
+              <Text style={styles.role}>IT Professional / Developer</Text>
             </View>
 
           </View>
@@ -189,9 +192,10 @@ export default function HomeScreen() {
             {/* ABOUT */}
             <Text style={styles.panelTitle}>About Me</Text>
             <Text style={styles.panelText}>
-              I'm an IT student from Universidad de Manila focused on web and mobile development, 
-              with hands-on experience in HTML, CSS, JavaScript, and React Native.
-              I value clean design, usability, and continuous learning.
+              Results-driven IT graduate with hands-on experience in full-stack web development, mobile application development, and IT leadership. 
+              Built and deployed production-ready applications using Flask, React Native, Firebase, and SQLite with sufficient experience in handling clients and addressing their needs. 
+              Experienced in team leadership and project coordination through an internship role managing and evaluating multiple IT interns.
+              Skilled in both front-end and back-end development with a track record of delivering complete solutions from design to deployment.
             </Text>
 
             {/* SKILLS */}
@@ -200,18 +204,27 @@ export default function HomeScreen() {
               Core Skills{'\n'}
               • HTML, CSS, JavaScript{'\n'}
               • React Native (Basics){'\n'}
+              • Python (Flask){'\n'}
+              • Tailwind CSS{'\n'}
               • Responsive UI Design{'\n'}
               • Data Visualization{'\n'}
+              • VENV - Virtualization{'\n'}
               • Object - Oriented Programming{'\n'}
               {'\n'}
               Tools{'\n'}
               • Microsoft Office{'\n'}
               • Google Workspace{'\n'}
+              • PostgreSQL Supabase{'\n'}
+              • MySQLite{'\n'}
+              • Visual Studio Code{'\n'}
+              • Claude AI (Anthropic){'\n'}
+              • Stitch (Google){'\n'}
               {'\n'}
               Technical Foundations{'\n'}
               • Cisco Basic Networking{'\n'}
               • Computer Troubleshooting{'\n'}
               • Documentation{'\n'}
+              • International Publication{'\n'}
             </Text>
 
             {/* ACHIEVEMENTS */}
@@ -226,7 +239,12 @@ export default function HomeScreen() {
               • 3rd Place — Collaborative Desktop Publishing (Division Level, 2019){'\n'}
               • 4th Place — Tarpaulin Making Contest (Division Level, 2019){'\n'}
               • Piso WiFi Business Startup (Networking & Operations Experience){'\n'}
-              • Capstone Leader{'\n'}
+              • GCASH Business (Sales Experience){'\n'}
+              • Siomai Business (Sales Experience){'\n'}
+              • Gym System Deployment (Client-based Experience){'\n'}
+              • Trained BPO Student (Communication Experience){'\n'}
+              • Capstone Leader (Leadership Experience){'\n'}
+              • OJT Team Leader (Leadership Experience){'\n'}
               • Corresponding Author in Publication of Capstone Study (Google Scholar){'\n'}
             </Text>
 
@@ -256,7 +274,7 @@ export default function HomeScreen() {
             {/* INTERESTS */}
             <Text style={styles.panelTitle}>Interests</Text>
             <Text style={styles.panelText}>
-              • Gym, Study, Business, Web & Mobile Development, and Video Games{'\n'}
+              • Gym, Singing, Travelling, Reading, Brainstorming, Study, Business, Web & Mobile Development, and Video Games{'\n'}
             </Text>
 
           </ScrollView>
@@ -437,8 +455,10 @@ const styles = StyleSheet.create({
   },
   panelText: {
     fontSize: 16,
-    lineHeight: 22,
+    lineHeight: 24,
     color: '#111827',
+    letterSpacing: 0.2,
+    textAlign: 'justify',
   },
   screen: {
     flex: 1,
