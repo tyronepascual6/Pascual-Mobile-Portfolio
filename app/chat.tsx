@@ -21,20 +21,25 @@ type Message = {
 };
 
 // ===== PORTFOLIO CONTEXT =====
-// This is the info Gemini uses to answer questions about you.
-// Update this whenever your info changes.
+// Update this whenever your info changes
 const PORTFOLIO_CONTEXT = `
-You are Tyrone Pascual's friendly portfolio assistant. Your name is "Ty's Assistant."
-Keep all answers SHORT (2-4 sentences max) and conversational — no bullet lists unless the user specifically asks.
+You are Tyrone Pascual's friendly wife/assistant. Your name is "Tyrone's Wife."
+Keep all answers SHORT (2-4 sentences max) and conversational.
+No bullet lists unless the user specifically asks.
 Only answer questions about Tyrone. If asked something unrelated, say: "I only know about Tyrone and his work!"
 
 TYRONE'S INFO:
 - Full Name: Tyrone Pascual
-- Role: IT Student & Developer
+- Role: IT Graduate / Developer
 - School: Universidad de Manila — BS Information Technology (2022–Present)
-- He's currently in his final years and led a capstone project published on Google Scholar.
+- Results-driven IT graduate with hands-on experience in full-stack web development, mobile app development, and IT leadership.
+- Built and deployed production-ready apps using Flask, React Native, Firebase, and SQLite.
+- Experienced in team leadership through an OJT role managing and evaluating multiple IT interns.
 
-SKILLS: HTML, CSS, JavaScript, React Native, Responsive UI, Data Visualization, OOP, Cisco Basic Networking, Computer Troubleshooting, Microsoft Office, Google Workspace
+SKILLS:
+Core: HTML, CSS, JavaScript, React Native, Python (Flask), Tailwind CSS, Responsive UI Design, Data Visualization, VENV Virtualization, Object-Oriented Programming
+Tools: Microsoft Office, Google Workspace, PostgreSQL Supabase, MySQLite, Visual Studio Code, Claude AI (Anthropic), Stitch (Google)
+Technical: Cisco Basic Networking, Computer Troubleshooting, Documentation, International Publication
 
 PROJECTS:
 1. Movie App (2025) — React Native app using REST API. github.com/tyronepascual6/Movie-App-Pascual
@@ -42,22 +47,68 @@ PROJECTS:
 3. Vitalis AI Health Assistant (2025) — Capstone. NLP chatbot for symptom analysis, Firebase + Firestore. github.com/tyronepascual6/vitalis-chatbot
 
 ACHIEVEMENTS:
-- Senior High Graduate with High Honors (2022)
-- Junior High Graduate with Honors (2020)
-- Best in TLE ICT Section 1 (2020)
-- 3rd Place Collaborative Desktop Publishing — Division Level (2019)
-- Published Capstone study as Corresponding Author on Google Scholar
-- Led a Piso WiFi business startup
+Academic: Senior High Graduate with High Honors (2022), Junior High Graduate with Honors (2020), Best in TLE ICT Section 1 (2020)
+Competitions: 3rd Place Collaborative Desktop Publishing — Division Level (2019), 4th Place Tarpaulin Making Contest — Division Level (2019)
+Experience: Piso WiFi Business Startup, GCash Business, Siomai Business, Gym System Deployment (client work), Trained BPO Student, Capstone Leader, OJT Team Leader
+Publication: Corresponding Author in Capstone Study published on Google Scholar
 
 EDUCATION:
-- BS IT — Universidad de Manila (2022–Present)
-- ICT TVL Senior High — Universidad de Manila (2020–2022)
-- Junior High — Pres. Corazon C. Aquino High School (2016–2020)
+- BS Information Technology — Universidad de Manila (2022–Present)
+- ICT TVL Senior High School — Universidad de Manila (2020–2022)
+- Junior High School — Pres. Corazon C. Aquino High School (2016–2020)
 
-PERSONAL: Speaks English and Filipino. Interests include gym, studying, business, and video games.
+PERSONAL:
+Languages: English, Filipino
+Interests: Gym, Singing, Travelling, Reading, Brainstorming, Studying, Business, Web & Mobile Development, Video Games
 
-Tone: Friendly, brief, and confident. Speak like a helpful friend who knows Tyrone well.
+Tone: Friendly, brief, confident. Like a helpful friend who knows Tyrone well.
 `;
+
+// ===== GROQ API CALL =====
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = 'llama-3.1-8b-instant'; // 14,400 free requests/day
+
+const fetchGroqReply = async (conversationHistory: Message[]): Promise<string> => {
+  const response = await fetch(GROQ_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.EXPO_PUBLIC_GROQ_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      max_tokens: 300,
+      temperature: 0.7,
+      messages: [
+        // System prompt first
+        { role: 'system', content: PORTFOLIO_CONTEXT },
+        // Then full conversation history (skip the initial bot greeting at index 0)
+        ...conversationHistory.slice(1).map((m) => ({
+          role: m.role === 'user' ? 'user' : 'assistant',
+          content: m.text,
+        })),
+      ],
+    }),
+  });
+
+  const data = await response.json();
+
+  // Surface any API errors clearly
+  if (data?.error) {
+    console.error('Groq API Error:', data.error);
+    throw new Error(data.error.message ?? 'Unknown API error');
+  }
+
+  const raw = data?.choices?.[0]?.message?.content ?? '';
+
+  // Strip markdown formatting since this is a mobile chat UI
+  return raw
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '')
+    .replace(/#{1,6}\s/g, '')
+    .replace(/`/g, '')
+    .trim();
+};
 
 // ===== CHAT SCREEN =====
 export default function ChatScreen() {
@@ -67,13 +118,14 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'bot',
-      text: "Hi! I'm Tyrone's portfolio assistant. Ask me anything about his skills, projects, or background! 👋",
+      text: "Hi! I'm Tyrone's wife and assistant. Ask me anything about his skills, projects, or background! 👋",
     },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Auto scroll to bottom when new message arrives
+  // Auto-scroll to bottom on new message
   useEffect(() => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
   }, [messages]);
@@ -81,61 +133,23 @@ export default function ChatScreen() {
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || loading) return;
-  
+
+    setError(null);
     const newMessages: Message[] = [...messages, { role: 'user', text }];
     setMessages(newMessages);
     setInput('');
     setLoading(true);
-  
+
     try {
-      const history = newMessages.slice(1).map((m) => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.text }],
-      }));
-  
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.EXPO_PUBLIC_GEMINI_KEY_1}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: {
-              parts: [{ text: PORTFOLIO_CONTEXT }],
-            },
-            contents: history,
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 512,
-            },
-          }),
-        }
-      );
-  
-      const data = await response.json();
-      console.log('GEMINI RESPONSE:', JSON.stringify(data, null, 2));
-  
-      // If Gemini returns an error, show it clearly
-      if (data?.error) {
-        console.log('API ERROR:', data.error.message);
-        setMessages((prev) => [...prev, { role: 'bot', text: `API Error: ${data.error.message}` }]);
-        return;
-      }
-  
-      const reply = (
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ??
-        "Sorry, I couldn't get a response. Try again!"
-      )
-        .replace(/\*\*/g, '')
-        .replace(/\*/g, '')
-        .replace(/#{1,6} /g, '')
-        .replace(/`/g, '');
-  
+      const reply = await fetchGroqReply(newMessages);
       setMessages((prev) => [...prev, { role: 'bot', text: reply }]);
-    } catch (e) {
-      console.log('FULL ERROR:', e);
+    } catch (e: any) {
+      console.error('sendMessage error:', e);
+      const errMsg = e?.message ?? 'Something went wrong.';
+      setError(errMsg);
       setMessages((prev) => [
         ...prev,
-        { role: 'bot', text: `Error: ${e}` },
+        { role: 'bot', text: 'Sorry, something went wrong. Please try again.' },
       ]);
     } finally {
       setLoading(false);
@@ -157,15 +171,22 @@ export default function ChatScreen() {
           <Text style={styles.headerTitle}>Tyrone's Wife</Text>
           <Text style={styles.headerSub}>Cuz I know him better than anyone else!</Text>
         </View>
-        {/* Online indicator dot */}
         <View style={styles.onlineDot} />
       </View>
+
+      {/* ERROR BANNER */}
+      {error && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>⚠️ {error}</Text>
+        </View>
+      )}
 
       {/* MESSAGES */}
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={styles.messagesContainer}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {messages.map((msg, index) => (
           <View
@@ -175,9 +196,7 @@ export default function ChatScreen() {
               msg.role === 'user' ? styles.bubbleRight : styles.bubbleLeft,
             ]}
           >
-            {/* Bot avatar dot green */}
             {msg.role === 'bot' && <View style={styles.botDot} />}
-
             <View
               style={[
                 styles.bubble,
@@ -196,7 +215,7 @@ export default function ChatScreen() {
           </View>
         ))}
 
-        {/* Typing indicator while waiting for Gemini */}
+        {/* Typing indicator */}
         {loading && (
           <View style={[styles.bubbleWrapper, styles.bubbleLeft]}>
             <View style={styles.botDot} />
@@ -220,7 +239,10 @@ export default function ChatScreen() {
           multiline
         />
         <Pressable
-          style={[styles.sendBtn, (!input.trim() || loading) && styles.sendBtnDisabled]}
+          style={[
+            styles.sendBtn,
+            (!input.trim() || loading) && styles.sendBtnDisabled,
+          ]}
           onPress={sendMessage}
           disabled={!input.trim() || loading}
         >
@@ -256,9 +278,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerInfo: {
-    flex: 1,
-  },
+  headerInfo: { flex: 1 },
   headerTitle: {
     fontSize: 16,
     fontWeight: '700',
@@ -275,6 +295,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#22c55e',
   },
+  errorBanner: {
+    backgroundColor: '#fef2f2',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#fecaca',
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 13,
+  },
   messagesContainer: {
     padding: 16,
     gap: 12,
@@ -285,12 +316,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 8,
   },
-  bubbleLeft: {
-    justifyContent: 'flex-start',
-  },
-  bubbleRight: {
-    justifyContent: 'flex-end',
-  },
+  bubbleLeft: { justifyContent: 'flex-start' },
+  bubbleRight: { justifyContent: 'flex-end' },
   botDot: {
     width: 28,
     height: 28,
@@ -325,12 +352,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  userText: {
-    color: '#fff',
-  },
-  botText: {
-    color: '#111827',
-  },
+  userText: { color: '#fff' },
+  botText: { color: '#111827' },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -359,7 +382,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sendBtnDisabled: {
-    backgroundColor: '#d1d5db',
-  },
+  sendBtnDisabled: { backgroundColor: '#d1d5db' },
 });

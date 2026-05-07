@@ -40,6 +40,12 @@ const certificates = [
     type: 'image',
     source: require('../assets/images/certificate5.jpg'),
   },
+  {
+    id: 6,
+    title: 'OJT Team Leader Appreciation',
+    type: 'image',
+    source: require('../assets/images/certificate6.jpg'),
+  },
 ];
 
 
